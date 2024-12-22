@@ -1,0 +1,30 @@
+version: '3.7'
+
+services:
+  api:
+    build: .
+    container_name: "employee-manager"
+    volumes:
+      - ./app:/code/app
+    ports:
+      - "8001:8001" # Cambié ambos puertos para evitar conflictos con Portainer
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@db:5432/employeedb
+
+  db:
+    image: postgres:13
+    container_name: "employee-manager-db"
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: employeedb
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:
