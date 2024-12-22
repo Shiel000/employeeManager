@@ -6,7 +6,7 @@ archivos/
 # C extensions
 *.so
 
-
+guide.txt
 
 # Distribution / packaging
 .Python
