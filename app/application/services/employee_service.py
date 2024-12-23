@@ -1,6 +1,5 @@
 from sqlalchemy.orm import Session
 from app.persistence.repositories.employee_repository import EmployeeRepository
-from app.domain.entities.employee import Employee
 from app.application.dtos.employee_dto import EmployeeCreateDTO, EmployeeUpdateDTO
 from app.persistence.orm.models.employee_model import EmployeeModel
 
@@ -21,12 +20,13 @@ class EmployeeService:
     def update_employee(self, employee_id: int, employee_data: EmployeeUpdateDTO):
         employee = self.repository.get_by_id(employee_id)
         if not employee:
-            return None
-        for key, value in employee_data.dict().items():
+            raise ValueError("Employee not found")
+        for key, value in employee_data.dict(exclude_unset=True).items():
             setattr(employee, key, value)
         return self.repository.update(employee)
 
     def delete_employee(self, employee_id: int):
         employee = self.repository.get_by_id(employee_id)
-        if employee:
-            self.repository.delete(employee)
+        if not employee:
+            raise ValueError("Employee not found")
+        self.repository.delete(employee)
