@@ -18,8 +18,8 @@ services:
     container_name: "employee-manager-db"
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: pwd0123456789
       POSTGRES_DB: employeedb
     ports:
       - "5432:5432"

@@ -1,4 +1,15 @@
 fastapi[standard]>=0.113.0,<0.114.0
 pydantic>=2.7.0,<3.0.0
+pydantic-settings>=2.0.0,<3.0.0
 SQLAlchemy
 uvicorn
+psycopg2==2.8.6
+pytest==6.2.1
+pytest-postgresql==2.5.2
+sqlalchemy-utils==0.37.9
+pyjwt==1.4.2
+Werkzeug==2.2
+pandas==2.2.0
+ldap3==2.9.1
+numpy==1.26.4
+openpyxl==3.1.0 
