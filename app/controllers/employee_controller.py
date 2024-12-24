@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from app.application.services.employee_service import EmployeeService
-from app.application.dtos.employee_dto import EmployeeCreateDTO, EmployeeUpdateDTO
+from app.services.employee_service import EmployeeService
+from app.dtos.employee_dto import EmployeeCreateDTO, EmployeeUpdateDTO
 
 class EmployeeController:
     def __init__(self, db: Session):
@@ -26,14 +26,17 @@ class EmployeeController:
             raise ValueError("Legajo cannot exceed 10 characters")
         return self.service.create_employee(employee_data)
 
+    # def update_employee(self, employee_id: int, employee_data: EmployeeUpdateDTO):
+    #     employee = self.service.get_employee(employee_id)
+    #     if not employee:
+    #         raise ValueError("Employee not found")
+    #     return self.service.update_employee(employee_id, employee_data)
+    
     def update_employee(self, employee_id: int, employee_data: EmployeeUpdateDTO):
-        employee = self.service.get_employee(employee_id)
-        if not employee:
-            raise ValueError("Employee not found")
+        # Lógica delegada completamente al servicio
         return self.service.update_employee(employee_id, employee_data)
 
     def delete_employee(self, employee_id: int):
-        employee = self.service.get_employee(employee_id)
-        if not employee:
-            raise ValueError("Employee not found")
-        self.servic
+        # Simplemente delega la lógica al servicio
+        return self.service.delete_employee(employee_id)
+

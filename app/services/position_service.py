@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
-from app.persistence.repositories.position_repository import PositionRepository
-from app.persistence.orm.models.position_model import PositionModel
-from app.application.dtos.position_dto import PositionCreateDTO, PositionUpdateDTO
+from app.repositories.position_repository import PositionRepository
+from app.models.position_model import PositionModel
+from app.dtos.position_dto import PositionCreateDTO, PositionUpdateDTO
 
 class PositionService:
     def __init__(self, db: Session):

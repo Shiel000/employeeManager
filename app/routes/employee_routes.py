@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.persistence.orm.base import SessionLocal
-from app.application.services.employee_service import EmployeeService
-from app.application.dtos.employee_dto import EmployeeCreateDTO, EmployeeUpdateDTO
+from app.models.base import SessionLocal
+from app.services.employee_service import EmployeeService
+from app.dtos.employee_dto import EmployeeCreateDTO, EmployeeUpdateDTO
 
 router = APIRouter()
 

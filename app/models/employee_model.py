@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Date , Table,ForeignKey
 from sqlalchemy.orm import validates, relationship
-from app.persistence.orm.base import Base
+from app.models.base import Base
 
 class EmployeeModel(Base):
     __tablename__ = "employees"

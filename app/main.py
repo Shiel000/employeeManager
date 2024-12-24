@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from sqlalchemy.orm import Session
-from app.presentation.routes import employee_routes
-from app.persistence.orm.base import Base, engine
-from app.presentation.routes import position_routes
+from app.routes import employee_routes
+from app.models.base import Base, engine
+from app.routes import position_routes
 
 app = FastAPI()
 

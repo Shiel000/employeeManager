@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from app.application.services.position_service import PositionService
-from app.application.dtos.position_dto import PositionCreateDTO, PositionUpdateDTO
+from app.services.position_service import PositionService
+from app.dtos.position_dto import PositionCreateDTO, PositionUpdateDTO
 
 class PositionController:
     def __init__(self, db: Session):

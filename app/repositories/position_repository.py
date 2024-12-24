@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.persistence.orm.models.position_model import PositionModel
+from app.models.position_model import PositionModel
 
 class PositionRepository:
     def __init__(self, db: Session):

@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Date , Table,ForeignKey,Float
 from sqlalchemy.orm import relationship
-from app.persistence.orm.base import Base
+from app.models.base import Base
 
 class PositionModel(Base):
     __tablename__ = "positions"

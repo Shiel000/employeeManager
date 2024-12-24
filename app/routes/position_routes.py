@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.persistence.orm.base import SessionLocal
-from app.application.services.position_service import PositionService
-from app.application.dtos.position_dto import PositionCreateDTO, PositionUpdateDTO
+from app.models.base import SessionLocal
+from app.services.position_service import PositionService
+from app.dtos.position_dto import PositionCreateDTO, PositionUpdateDTO
 
 router = APIRouter()
 

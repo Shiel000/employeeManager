@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.persistence.orm.models.employee_model import EmployeeModel
+from app.models.employee_model import EmployeeModel
 
 class EmployeeRepository:
     def __init__(self, db: Session):
