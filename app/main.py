@@ -14,3 +14,18 @@ app.include_router(position_routes.router, prefix="/api/positions", tags=["Posit
 @app.on_event("startup")
 def create_tables():
     Base.metadata.create_all(bind=engine)
+
+# @app.on_event("startup")
+# async def startup_event():
+#     try:
+#         # Probar conexión a la base de datos
+#         with engine.connect() as connection:
+#             connection.execute("SELECT 1")
+#         print("Conexión a la base de datos exitosa")
+#     except Exception as e:
+#         print(f"Error conectando a la base de datos: {e}")
+
+@app.on_event("shutdown")
+def shutdown_event():
+    engine.dispose()
+    print("Recursos cerrados correctamente")
