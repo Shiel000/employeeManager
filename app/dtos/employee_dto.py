@@ -2,38 +2,41 @@ from datetime import date
 from pydantic import BaseModel
 
 class EmployeeCreateDTO(BaseModel):
-    legajo: str
-    nombre: str
-    apellido: str
-    documento: str
-    fecha_ingreso: date
+    record: str
+    name: str
+    surname: str
+    document: int
+    entry_date: date
+    
+    class Config:
+        from_attributes = True
+        json_schema_extra = {
+            "example": {
+                    "record": "23456",
+                    "name": "Jane",
+                    "surname": "Doe",
+                    "document": "39098765",
+                    "entry_date": "2024-12-24",
+            }
+        }
     
     @property
     def full_name(self) -> str:
         """Combina nombre y apellido."""
-        return f"{self.nombre} {self.apellido}"
+        return f"{self.name} {self.surname}"
 
     @property
     def seniority(self) -> int:
         """Calcula la antigüedad del empleado en años."""
         today = date.today()
-        return today.year - self.fecha_ingreso.year - (
-            (today.month, today.day) < (self.fecha_ingreso.month, self.fecha_ingreso.day)
+        return today.year - self.entry_date.year - (
+            (today.month, today.day) < (self.entry_date.month, self.entry_date.day)
         )
     
-    class Config:
-        json_schema_extra = {
-            "example": {
-                    "legajo": "23456",
-                    "nombre": "Jane",
-                    "apellido": "Doe",
-                    "documento": "39098765",
-                    "fecha_ingreso": "2024-12-24",
-            }
-        }
+
 
 
 class EmployeeUpdateDTO(BaseModel):
-    nombre: str
-    apellido: str
-    fecha_ingreso: date 
+    name: str
+    surname: str
+    entry_date: date 

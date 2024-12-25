@@ -22,8 +22,8 @@ class EmployeeController:
 
     def create_employee(self, employee_data: EmployeeCreateDTO):
         # Validación específica (si es necesario)
-        if len(employee_data.legajo) > 10:
-            raise ValueError("Legajo cannot exceed 10 characters")
+        # if len(employee_data.legajo) > 10:
+        #     raise ValueError("Legajo cannot exceed 10 characters")
         return self.service.create_employee(employee_data)
 
     # def update_employee(self, employee_id: int, employee_data: EmployeeUpdateDTO):
