@@ -6,19 +6,8 @@ from app.dtos.position_dto import PositionCreateDTO, PositionUpdateDTO
 
 router = APIRouter()
 
-@router.get("/")
-def get_positions(db: Session = Depends(get_db), include_salaries: bool = True):
-    controller = PositionController(db)
-    return controller.get_all_positions(include_salaries=include_salaries)
 
-@router.get("/{position_id}")
-def get_position(position_id: int, db: Session = Depends(get_db)):
-    controller = PositionController(db)
-    try:
-        return controller.get_position(position_id)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
+# Create
 @router.post("/")
 def create_position(position: PositionCreateDTO, db: Session = Depends(get_db)):
     controller = PositionController(db)
@@ -27,19 +16,55 @@ def create_position(position: PositionCreateDTO, db: Session = Depends(get_db)):
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.put("/{position_id}")
-def update_position(position_id: int, position: PositionUpdateDTO, db: Session = Depends(get_db)):
+# List all (with or without details)
+@router.get("/")
+def get_positions(db: Session = Depends(get_db), include_details: bool = True):
+    controller = PositionController(db)
+    return controller.get_all_positions(include_details=include_details)
+
+# List one
+@router.get("/{position_id}")
+def get_position(position_id: int, db: Session = Depends(get_db), include_detail: bool = True):
     controller = PositionController(db)
     try:
-        return controller.update_position(position_id, position)
+        return controller.get_position(position_id, include_detail=include_detail)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    
+
+#Edit detail
+@router.put("/{position_id}/edit")
+def edit_position(position_data: PositionUpdateDTO, db: Session = Depends(get_db)):
+    controller = PositionController(db)
+    try:
+        return controller.edit_position(position_data)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+# Deactivate 
 @router.delete("/{position_id}")
-def delete_position(position_id: int, db: Session = Depends(get_db)):
+def deactivate_position(position_id: int, db: Session = Depends(get_db)):
     controller = PositionController(db)
     try:
-        controller.delete_position(position_id)
-        return {"detail": "Position deleted"}
+        controller.deactivate_position(position_id)
+        return {"detail": "Position deactivated"}
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+    
+# Activate
+@router.put("/{position_id}/activate")
+def update_position_status(position_id: int, db: Session = Depends(get_db)):
+    controller = PositionController(db)
+    try:
+        return controller.activate_position(position_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+
+
+
+# @router.get("/")
+# def get_positions(db: Session = Depends(get_db), include_salary: bool = True):
+#     controller = PositionController(db)
+#     return controller.get_all_positions(include_salary=include_salary)

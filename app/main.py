@@ -18,6 +18,34 @@ def create_tables():
     # Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
 
+@app.on_event("shutdown")
+def shutdown_event():
+    engine.dispose()
+    print("Recursos cerrados correctamente")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # @app.on_event("startup")
 # async def startup_event():
 #     try:
@@ -27,8 +55,3 @@ def create_tables():
 #         print("Conexión a la base de datos exitosa")
 #     except Exception as e:
 #         print(f"Error conectando a la base de datos: {e}")
-
-@app.on_event("shutdown")
-def shutdown_event():
-    engine.dispose()
-    print("Recursos cerrados correctamente")
