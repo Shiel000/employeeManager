@@ -27,7 +27,7 @@ The company has requested a prototype system to decide whether to invest in its 
 - Bonuses vary in type, with larger bonuses resulting in greater financial compensation.
 - Salary calculation consists of:
   - A base salary (equal for all employees).
-  - Amounts associated with the employee’s roles.
+  - salarys associated with the employee’s roles.
   - Bonuses.
   - Years worked at the company.
   - Deductions.
