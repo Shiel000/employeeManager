@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from app.models.position_model import PositionModel
 from app.models.position_detail_model import PositionDetailModel
+from typing import  List
 
 class PositionRepository:
     def __init__(self, db: Session):
@@ -29,4 +30,10 @@ class PositionRepository:
    
     def get_by_name(self, name: str):
         return self.db.query(PositionModel).filter(PositionModel.description == name).first()
-
+    
+    def get_by_ids(self, position_ids: List[int], is_active: bool = False):
+        query = self.db.query(PositionModel).filter(PositionModel.id.in_(position_ids))
+        if is_active:
+            query = query.filter(PositionModel.active == True)
+        return query.all()
+    

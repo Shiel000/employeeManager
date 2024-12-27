@@ -8,7 +8,6 @@ class GroupController:
 
     def get_all_groups(self, include_positions: bool = True):
         groups = self.service.get_all_groups()
-        # Lógica específica de presentación: filtrar datos relacionados (por ejemplo, posiciones)
         if not include_positions:
             for group in groups:
                 group.positions = []  # Excluir las posiciones de la respuesta
