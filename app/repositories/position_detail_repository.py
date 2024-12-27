@@ -22,4 +22,4 @@ class PositionDetailRepository:
     def update(self, detail: PositionDetailModel):
         self.db.commit()
         return detail
-
+    

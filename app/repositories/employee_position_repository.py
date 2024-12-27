@@ -29,3 +29,9 @@ class EmployeePositionRepository:
         self.db.add(employee)
         return employee
 
+    def get_active_positions_by_employee(self, employee_id: int):
+        return (self.db.query(EmployeePosition).filter(
+                EmployeePosition.employee_id == employee_id,
+                EmployeePosition.end_date == None
+            )
+            .all())

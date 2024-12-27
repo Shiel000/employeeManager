@@ -5,12 +5,14 @@ from app.routes import position_routes
 from app.routes import group_routes
 from fastapi_pagination  import add_pagination
 from fastapi_pagination.utils import disable_installed_extensions_check
+from app.routes import payroll_routes
 
 app = FastAPI()
 
 # Register routes
 app.include_router(employee_routes.router, prefix="/api/employees", tags=["Employees"])
 app.include_router(position_routes.router, prefix="/api/positions", tags=["Positions"])
+app.include_router(payroll_routes.router, prefix="/api/payrolls", tags=["Payrolls"])
 app.include_router(group_routes.router, prefix="/api/groups", tags=["Groups"])
 
 add_pagination(app)

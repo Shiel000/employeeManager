@@ -72,9 +72,7 @@ class EmployeeRepository:
         return query
     
     def get_employee_positions(self, employee_id: int) -> List[EmployeePosition]:
-        return self.db.query(EmployeePosition).join(PositionModel).filter(
-            EmployeePosition.employee_id == employee_id
-        ).all()
+        return self.db.query(EmployeePosition).join(PositionModel).filter(EmployeePosition.employee_id == employee_id).all()
     
     # def filter_by_params(self, filters: Optional[EmployeeFilter]) -> Query:
     #     # Carga los datos con las relaciones necesarias
