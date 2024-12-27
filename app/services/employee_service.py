@@ -8,15 +8,43 @@ from typing import List, Optional
 from app.models.position_model import PositionModel
 from app.models.employee_position_table import EmployeePosition
 from app.repositories.employee_position_repository import EmployeePositionRepository
+from app.dtos.employee_dto import EmployeeCreateDTO, EmployeeUpdateDTO,EmployeeFilter
+from fastapi_pagination import paginate
+import csv
+from io import StringIO
 
 
 class EmployeeService:
-    def __init__(self, db: Session):
+    def __init__(self, db: Session,params=None):
+        
         self.repository = EmployeeRepository(db)
         self.position_repository = PositionRepository(db)
         self.employee_position_repository = EmployeePositionRepository(db)
         self.db = db
+        self.params =params
         
+    def get_all_employees(self, filters: Optional[EmployeeFilter], include_positions: bool):
+        query = self.repository.filter_by_params(filters)
+        query= query.all()
+        paginated_data = paginate(query, self.params)
+
+        if include_positions:
+            for employee in paginated_data.items:
+                employee_positions = self.repository.get_employee_positions(employee.id)
+                employee.positions = [
+                    {
+                        "start_date": pos.start_date,
+                        "end_date": pos.end_date,
+                        "position": {
+                            "id": pos.position.id,
+                            "description": pos.position.description,
+                            "active": pos.position.active,
+                        }
+                    }
+                    for pos in employee_positions
+                ]   
+
+        return paginated_data    
         
     def create_employee(self, employee_data: EmployeeCreateDTO):
         try:
@@ -67,7 +95,6 @@ class EmployeeService:
                 end_date=None
             )
             self.employee_position_repository.create(employee_position)
-            # self.db.add(employee_position)
             
             
     def _build_employee_response(self, employee: EmployeeModel, positions: List[PositionModel]) -> dict:
@@ -101,17 +128,57 @@ class EmployeeService:
         self.db.refresh(employee)
         return employee
 
+    # def add_positions_to_employee(self, employee_id: int, positions: List[int]):
+    #     employee = self.repository.get_by_id(employee_id)
+    #     if not employee:
+    #         raise ValueError("Employee not found.")
+
+    #     active_positions = self.position_repository.get_by_ids(positions, is_active=True)
+    #     if len(active_positions) + len([ep for ep in employee.employee_positions if ep.end_date is None]) > 3:
+    #         raise ValueError("An employee cannot have more than 3 active positions.")
+
+    #     for position in active_positions:
+    #         # Crear y guardar un nuevo registro en EmployeePosition
+    #         employee_position = EmployeePosition(
+    #             employee_id=employee.id,
+    #             position_id=position.id,
+    #             start_date=date.today(),
+    #             end_date=None
+    #         )
+    #         self.employee_position_repository.create(employee_position)
+
+    #     self.db.commit()
+    #     self.db.refresh(employee)
+    #     # self._build_employee_response(employee=employee,positions=active_positions)
+    #     return employee
+
     def add_positions_to_employee(self, employee_id: int, positions: List[int]):
         employee = self.repository.get_by_id(employee_id)
         if not employee:
             raise ValueError("Employee not found.")
 
+        # Obtener las posiciones activas ya asignadas al empleado
+        existing_active_positions = {
+            ep.position_id
+            for ep in employee.employee_positions
+            if ep.end_date is None
+        }
+
+        # Validar si los cargos que se intentan agregar ya están asignados
         active_positions = self.position_repository.get_by_ids(positions, is_active=True)
-        if len(active_positions) + len([ep for ep in employee.employee_positions if ep.end_date is None]) > 3:
+        new_positions = [
+            position for position in active_positions if position.id not in existing_active_positions
+        ]
+
+        if not new_positions:
+            raise ValueError("All positions are already assigned to the employee.")
+
+        # Validar el límite de cargos activos
+        if len(existing_active_positions) + len(new_positions) > 3:
             raise ValueError("An employee cannot have more than 3 active positions.")
 
-        for position in active_positions:
-            # Crear y guardar un nuevo registro en EmployeePosition
+        # Agregar los nuevos cargos
+        for position in new_positions:
             employee_position = EmployeePosition(
                 employee_id=employee.id,
                 position_id=position.id,
@@ -122,9 +189,7 @@ class EmployeeService:
 
         self.db.commit()
         self.db.refresh(employee)
-        # self._build_employee_response(employee=employee,positions=active_positions)
         return employee
-
     
     def remove_positions_from_employee(self, employee_id: int, positions: List[int]):
         employee = self.repository.get_by_id(employee_id)
@@ -166,44 +231,8 @@ class EmployeeService:
             for ep in employee.employee_positions
         ]
 
-
-    
-    def list_employees(self, name: Optional[str], surname: Optional[str], active_position: Optional[bool], skip: int, limit: int):
-        """
-        Lista empleados con filtros opcionales, paginación y ordenación.
-        """
-        filters = {}
-        if name:
-            filters["name"] = name
-        if surname:
-            filters["surname"] = surname
-        if active_position is not None:
-            filters["active_position"] = active_position
-
-        employees = self.repository.list_employees(filters, skip, limit)
-        return [
-            {
-                "id": emp.id,
-                "employee_number": emp.employee_number,
-                "name": emp.name,
-                "surname": emp.surname,
-                "positions": [
-                    {
-                        "position_id": ep.position_id,
-                        "start_date": ep.start_date,
-                        "end_date": ep.end_date,
-                    }
-                    for ep in emp.employee_positions
-                    if not active_position or ep.end_date is None  # Filtro aplicado a la salida
-                ]
-            }
-            for emp in employees
-        ]
     
     def get_employee(self, employee_id: int):
-        """
-        Obtiene un empleado y sus posiciones activas e históricas.
-        """
         employee = self.repository.get_by_id(employee_id)
         if not employee:
             raise ValueError("Employee not found.")
@@ -227,141 +256,123 @@ class EmployeeService:
         }
     
     def delete_employee(self, employee_id: int):
-        """
-        Elimina un empleado después de desvincularlo de sus cargos.
-        """
-        # Obtener el empleado
         employee = self.repository.get_by_id(employee_id)
         if not employee:
             raise ValueError("Employee not found.")
 
-        # Desvincular al empleado de sus cargos
         active_positions = self.employee_position_repository.get_active_relationships(employee_id, [])
         for position in active_positions:
             position.end_date = date.today()
         
-        # Eliminar al empleado
         self.repository.delete(employee)
-
-        # Guardar los cambios
+        
         self.db.commit()
         return {"detail": f"Employee with ID {employee_id} has been deleted."}
     
-        # def create_employee(self, employee_data: EmployeeCreateDTO):
-    #     try:
-    #         with self.db.begin():
- 
-    #             existing_employee = self.repository.get_by_document(employee_data.document)
-    #             if existing_employee:
-    #                 raise ValueError("An employee with this document already exists.")
+    
+    # def generate_report(self, filters: EmployeeFilter):
+    #     """
+    #     Genera un reporte de empleados con su historial de cargos y los montos asociados.
+    #     """
+    #     employees = self._filter_employees(filters)
 
-    #             # Calcular el número del empleado
-    #             employee_number = self.calculate_employee_number()
+    #     # Crear un reporte como CSV
+    #     csv_file = StringIO()
+    #     writer = csv.writer(csv_file)
+    #     # Encabezados del reporte
+    #     writer.writerow([
+    #         "Employee ID", "Employee Number", "Name", "Surname", "Document",
+    #         "Entry Date", "Position ID", "Position Start Date", "Position End Date", 
+    #         "Position Status", "Amount"
+    #     ])
 
-    #             # Crear el empleado
-    #             new_employee = EmployeeModel(
-    #                 employee_number=employee_number,
-    #                 name=employee_data.name,
-    #                 surname=employee_data.surname,
-    #                 document=employee_data.document,
-    #                 entry_date=employee_data.entry_date
-    #             )
-    #             # self.db.add(new_employee)
-    #             self.repository.create(new_employee)
+    #     # Agregar filas por cada posición de cada empleado
+    #     for emp in employees:
+    #         for pos in emp.employee_positions:
+    #             # Obtener el detalle activo del cargo
+    #             active_detail = self._get_active_position_detail(pos.position_id)
 
-    #             if not employee_data.positions:
-    #                 raise ValueError("An employee must have at least one position assigned.")
+    #             writer.writerow([
+    #                 emp.id,
+    #                 emp.employee_number,
+    #                 emp.name,
+    #                 emp.surname,
+    #                 emp.document,
+    #                 emp.entry_date,
+    #                 pos.position_id,
+    #                 pos.start_date,
+    #                 pos.end_date or "Active",
+    #                 "Active" if pos.end_date is None else "Inactive",
+    #                 active_detail.amount if active_detail else "N/A"
+    #             ])
 
-    #             positions = self.position_repository.get_by_ids(employee_data.positions, is_active=True)
-    #             if not positions or len(positions) != len(employee_data.positions):
-    #                 raise ValueError("Some positions provided are invalid.")
+    #     csv_file.seek(0)
+    #     return csv_file.getvalue()
 
-    #             if len(positions) > 3:
-    #                 raise ValueError("An employee cannot have more than 3 active positions.")
+    # def _filter_employees(self, filters: EmployeeFilter):
+    #     return self.repository.list_employees(filters)
 
-    #             for position in positions:
-    #                 employee_position = EmployeePosition(
-    #                     employee=new_employee,
-    #                     position=position,
-    #                     start_date=date.today(),
-    #                     end_date=None
-    #                 )
-    #                 self.db.add(employee_position)
+    # def _get_active_position_detail(self, position_id: int):
+    #     """
+    #     Obtiene el detalle activo de una posición.
+    #     """
+    #     return self.position_detail_repository.get_active_by_position(position_id)
+    
+    
+    # def list_employees(self, name: Optional[str], surname: Optional[str], active_position: Optional[bool], skip: int, limit: int):
+    #     filters = {}
+    #     if name:
+    #         filters["name"] = name
+    #     if surname:
+    #         filters["surname"] = surname
+    #     if active_position is not None:
+    #         filters["active_position"] = active_position
 
-    #         self.db.refresh(new_employee)
-
-    #         return {
-    #             "id": new_employee.id,
-    #             "employee_number": new_employee.employee_number,
-    #             "name": new_employee.name,
-    #             "surname": new_employee.surname,
-    #             "document": new_employee.document,
-    #             "entry_date": new_employee.entry_date,
-    #             "positions": [position.id for position in positions]
+    #     employees = self.repository.list_employees(filters, skip, limit)
+    #     return [
+    #         {
+    #             "id": emp.id,
+    #             "employee_number": emp.employee_number,
+    #             "name": emp.name,
+    #             "surname": emp.surname,
+    #             "positions": [
+    #                 {
+    #                     "position_id": ep.position_id,
+    #                     "start_date": ep.start_date,
+    #                     "end_date": ep.end_date,
+    #                 }
+    #                 for ep in emp.employee_positions
+    #                 if not active_position or ep.end_date is None  # Filtro aplicado a la salida
+    #             ]
     #         }
-    #     except Exception as e:
-    #         print(f"Error while creating employee: {e}")
-    #         raise e
+    #         for emp in employees
+    #     ]
     
+        # def get_all_employees(self,filters:Optional[EmployeeFilter]):
+    #     query = self.repository.filter_by_params(filters=filters)
+    #     query =query.all()
+    #     pag = paginate(query,self.params)
+    #     return pag
     
+        # def get_all_employees(self, filters: Optional[EmployeeFilter]):
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    #     query = self.repository.filter_by_params(filters)
+    #     query = query.all()
+    #     paginated_data = paginate(query, self.params)
 
-    # def get_all_employees(self):
-    #     return self.repository.get_all()
+    #     for employee in paginated_data.items:            
+    #         employee_positions = self.repository.get_employee_positions(employee.id)
+    #         employee.positions = [
+    #             {
+    #                 "start_date": pos.start_date,
+    #                 "end_date": pos.end_date,
+    #                 "position": {
+    #                     "id": pos.position.id,
+    #                     "description": pos.position.description,
+    #                     "active": pos.position.active,
+    #                 }
+    #             }
+    #             for pos in employee_positions
+    #         ]
 
-    # def get_employee(self, employee_id: int):
-    #     return self.repository.get_by_id(employee_id)
-
-    # def create_employee(self, employee_data: EmployeeCreateDTO):
-    #     employee = EmployeeModel(**employee_data.dict())
-    #     return self.repository.create(employee)
-
-    # # def update_employee(self, employee_id: int, employee_data: EmployeeUpdateDTO):
-    # #     employee = self.repository.get_by_id(employee_id)
-    # #     if not employee:
-    # #         raise ValueError("Employee not found")
-    # #     for key, value in employee_data.dict(exclude_unset=True).items():
-    # #         setattr(employee, key, value)
-    # #     return self.repository.update(employee)
-    
-
-    # def update_employee(self, employee_id: int, employee_data: EmployeeUpdateDTO):
-    #     employee = self.repository.get_by_id(employee_id)
-    #     if not employee:
-    #         raise ValueError("Employee not found")
-
-    #     # Actualizar solo los campos definidos
-    #     for key, value in employee_data.dict(exclude_unset=True).items():
-    #         setattr(employee, key, value)
-
-    #     return self.repository.update(employee)
-
-
-    # def delete_employee(self, employee_id: int):
-    #     employee = self.repository.get_by_id(employee_id)
-    #     if not employee:
-    #         raise ValueError("Employee not found")
-    #     self.repository.delete(employee)
+    #     return paginated_data

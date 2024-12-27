@@ -32,3 +32,11 @@ class PositionUpdateDTO(BaseModel):
                 "salary" : 50000
             }
         }
+        
+class PositionOut(BaseModel):
+    id: int
+    description: str
+    active: bool
+
+    class Config:
+        from_attributes = True
