@@ -5,7 +5,7 @@ from app.controllers.employee_controller import EmployeeController
 from app.dtos.employee_dto import EmployeeCreateDTO, EmployeeUpdateDTO,EmployeeAddDeletePositionsDTO, EmployeeFilter,EmployeeOut
 from typing import Optional
 from fastapi import Query
-from fastapi_pagination import Page, add_pagination, paginate, Params
+from fastapi_pagination import Page,Params
 
 
 router = APIRouter()

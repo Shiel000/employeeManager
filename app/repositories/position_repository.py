@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from app.models.position_model import PositionModel
 from app.models.position_detail_model import PositionDetailModel
+from app.models.employee_position_table import EmployeePosition
 from typing import  List
 
 class PositionRepository:
@@ -36,4 +37,11 @@ class PositionRepository:
         if is_active:
             query = query.filter(PositionModel.active == True)
         return query.all()
+    
+    def delete(self, position: PositionModel):
+        self.db.delete(position)
+
+    def get_related_employees(self, position_id: int):
+        return (self.db.query(EmployeePosition).filter(EmployeePosition.position_id == position_id).all())
+
     

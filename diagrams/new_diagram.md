@@ -31,8 +31,16 @@ erDiagram
         date end_date "End date of the position (nullable)"
     }
     
+    Payroll {
+        int id PK "Primary Key"
+        string period "Payroll period in format YYYY-MM"
+        float amount "Total amount for the payroll"
+        int employee_id FK "Foreign Key to Employee"
+    }
+    
     Position ||--o{ PositionDetail : "has"
     Employee ||--o{ EmployeePosition : "holds"
     Position ||--o{ EmployeePosition : "assigned"
+    Employee ||--o{ Payroll : "receives"
 
 ```

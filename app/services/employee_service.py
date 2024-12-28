@@ -10,8 +10,9 @@ from app.models.employee_position_table import EmployeePosition
 from app.repositories.employee_position_repository import EmployeePositionRepository
 from app.dtos.employee_dto import EmployeeCreateDTO, EmployeeUpdateDTO,EmployeeFilter
 from fastapi_pagination import paginate
-import csv
-from io import StringIO
+from app.repositories.payroll_repository import PayrollRepository
+
+
 
 
 class EmployeeService:
@@ -20,6 +21,7 @@ class EmployeeService:
         self.repository = EmployeeRepository(db)
         self.position_repository = PositionRepository(db)
         self.employee_position_repository = EmployeePositionRepository(db)
+        self.payroll_repository = PayrollRepository(db)
         self.db = db
         self.params =params
         
@@ -128,30 +130,6 @@ class EmployeeService:
         self.db.refresh(employee)
         return employee
 
-    # def add_positions_to_employee(self, employee_id: int, positions: List[int]):
-    #     employee = self.repository.get_by_id(employee_id)
-    #     if not employee:
-    #         raise ValueError("Employee not found.")
-
-    #     active_positions = self.position_repository.get_by_ids(positions, is_active=True)
-    #     if len(active_positions) + len([ep for ep in employee.employee_positions if ep.end_date is None]) > 3:
-    #         raise ValueError("An employee cannot have more than 3 active positions.")
-
-    #     for position in active_positions:
-    #         # Crear y guardar un nuevo registro en EmployeePosition
-    #         employee_position = EmployeePosition(
-    #             employee_id=employee.id,
-    #             position_id=position.id,
-    #             start_date=date.today(),
-    #             end_date=None
-    #         )
-    #         self.employee_position_repository.create(employee_position)
-
-    #     self.db.commit()
-    #     self.db.refresh(employee)
-    #     # self._build_employee_response(employee=employee,positions=active_positions)
-    #     return employee
-
     def add_positions_to_employee(self, employee_id: int, positions: List[int]):
         employee = self.repository.get_by_id(employee_id)
         if not employee:
@@ -259,6 +237,10 @@ class EmployeeService:
         employee = self.repository.get_by_id(employee_id)
         if not employee:
             raise ValueError("Employee not found.")
+        
+        payrolls = self.payroll_repository.get_by_employee(employee_id)
+        for payroll in payrolls:
+            self.payroll_repository.delete(payroll)
 
         active_positions = self.employee_position_repository.get_active_relationships(employee_id, [])
         for position in active_positions:

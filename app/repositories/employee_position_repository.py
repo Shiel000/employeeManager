@@ -6,6 +6,14 @@ from datetime import date
 class EmployeePositionRepository:
     def __init__(self, db: Session):
         self.db = db
+        
+        
+    def get_related_employees(self, position_id: int):
+        return (
+            self.db.query(EmployeePosition)
+            .filter(EmployeePosition.position_id == position_id)
+            .all()
+        )
 
     def get_active_relationships(self, employee_id: int, position_ids: List[int]):
         """
@@ -35,3 +43,4 @@ class EmployeePositionRepository:
                 EmployeePosition.end_date == None
             )
             .all())
+    

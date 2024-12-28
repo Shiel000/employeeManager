@@ -4,7 +4,7 @@ from app.models.position_model import PositionModel
 from app.dtos.position_dto import PositionCreateDTO, PositionUpdateDTO
 from app.repositories.position_detail_repository import PositionDetailRepository
 from app.services.position_detail_service import PositionDetailService
-
+from app.repositories.employee_position_repository import EmployeePositionRepository
 
 
 class PositionService:
@@ -12,7 +12,9 @@ class PositionService:
         self.position_repository = PositionRepository(db)
         self.detail_repository = PositionDetailRepository(db)
         self.detail_service = PositionDetailService(db)
+        self.employee_position_repository = EmployeePositionRepository(db)
         self.db = db
+        
     
     def create_position(self, position_data: PositionCreateDTO):    
         existing_position = self.position_repository.get_by_name(position_data.description)
@@ -79,3 +81,20 @@ class PositionService:
             })
 
         return result
+    
+    def delete_position(self, position_id: int):
+    
+        position = self.position_repository.get_by_id(position_id)
+        if not position:
+            raise ValueError("Position not found.")
+        if position.active:
+            raise ValueError("Cannot delete an active position.")
+        related_employees = self.employee_position_repository.get_related_employees(position_id)
+        if related_employees:
+            raise ValueError("Cannot delete position because it is linked to employees.")
+
+
+        self.detail_repository.delete_by_position_id(position_id)
+        self.position_repository.delete(position)
+        self.db.commit()
+
