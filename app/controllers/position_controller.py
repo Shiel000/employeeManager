@@ -52,3 +52,7 @@ class PositionController:
         
     def activate_position(self, position_id: int):    
         return self.service.update_active_status(position_id, is_active=True)
+
+    def delete_position(self, position_id: int):
+        self.service.delete_position(position_id)
+        return {"detail": "Position deleted successfully"}

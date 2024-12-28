@@ -61,7 +61,13 @@ def update_position_status(position_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail=str(e))
 
 
-
+@router.delete("/{position_id}/hard-delete")
+def delete_position(position_id: int, db: Session = Depends(get_db)):
+    controller = PositionController(db)
+    try:
+        return controller.delete_position(position_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 # @router.get("/")

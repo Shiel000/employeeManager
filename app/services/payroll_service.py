@@ -3,28 +3,60 @@ from app.repositories.employee_position_repository import EmployeePositionReposi
 from app.repositories.position_detail_repository import PositionDetailRepository
 from app.repositories.payroll_repository import PayrollRepository
 from sqlalchemy.orm import Session
-from app.dtos.payroll_dto import PayrollCreateDTO
+from app.dtos.payroll_dto import PayrollCreateDTO, PayrollFilterDTO
 from datetime import date
 from app.models.payroll_model import PayrollModel
 import os
+from fastapi_pagination import paginate
+from collections import defaultdict
+
 
 class PayrollService:
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, params=None):
         self.db = db
         self.employee_repository = EmployeeRepository(db)
         self.employee_position_repository = EmployeePositionRepository(db)
         self.position_detail_repository = PositionDetailRepository(db)
         self.payroll_repository = PayrollRepository(db)
-        self.MINIMUM_WAGE = float(os.getenv("MINIMUM_WAGE", "1000.00"))
+        self.MINIMUM_WAGE = float(os.getenv("MINIMUM_WAGE"))
+        self.params = params
+        
 
-
-
-    # def get_all_employees(self, filters: Optional[EmployeeFilter], include_positions: bool):
-    #     query = self.repository.filter_by_params(filters)
-    #     query= query.all()
-    #     paginated_data = paginate(query, self.params)
-
-
+        
+    def get_payrolls(self, filters: PayrollFilterDTO):
+        query = self.payroll_repository.filter_by_params(filters).all()
+        payrolls = self._group_payroll_data(query)
+        return paginate(payrolls, self.params)
+        
+    def get_payroll_by_id(self, payroll_id: int):
+        query_results = self.payroll_repository.get_by_id(payroll_id)
+        if not query_results:
+            raise ValueError("Payroll not found.")
+        payrolls = self._group_payroll_data(query_results)
+        return payrolls[0] 
+        
+    def _group_payroll_data(self, query_results):
+        grouped_data = defaultdict(lambda: {"positions": []})
+        for payroll, employee, position in query_results:
+            if payroll.id not in grouped_data:
+                grouped_data[payroll.id] = {
+                    "id": payroll.id,
+                    "employee_id": payroll.employee_id,
+                    "period": payroll.period,
+                    "amount": float(payroll.amount),
+                    "employee_name": employee.name,
+                    "employee_surname": employee.surname,
+                    "positions": []
+                }
+            if position:
+                grouped_data[payroll.id]["positions"].append({
+                    "position_id": position.id,
+                    "position_description": position.description
+                })
+        return list(grouped_data.values())
+        
+    
+    
     def create_payroll(self, payroll_data: PayrollCreateDTO):
 
         employee = self._validate_employee_exists(payroll_data.employee_id)

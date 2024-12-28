@@ -23,3 +23,17 @@ class PositionDetailRepository:
         self.db.commit()
         return detail
     
+    # def delete_by_position_id(self, position_id: int):
+
+    #     self.db.query(PositionDetailModel).filter(PositionDetailModel.position_id == position_id).delete()
+    
+    def delete_by_position_id(self, position_id: int):
+        deleted_count = (
+            self.db.query(PositionDetailModel)
+            .filter(PositionDetailModel.position_id == position_id)
+            .delete(synchronize_session=False)
+        )
+
+
+
+    
