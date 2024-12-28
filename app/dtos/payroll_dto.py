@@ -34,31 +34,6 @@ class PayrollFilterDTO(BaseModel):
         }
 
 
-# class PayrollOutDTO(BaseModel):
-#     id: int
-#     employee_id: int
-#     period: str
-#     amount: float
-#     employee_name: Optional[str] = None  # Nombre del empleado (opcional)
-#     employee_surname: Optional[str] = None  # Apellido del empleado (opcional)
-#     position_id: Optional[int] = None  # ID de la posición (opcional)
-#     position_description: Optional[str] = None  # Descripción de la posición (opcional)
-
-#     class Config:
-#         from_attributes = True  # Permite convertir desde modelos SQLAlchemy
-#         json_schema_extra = {
-#             "example": {
-#                 "id": 1,
-#                 "employee_id": 123,
-#                 "period": "2024-12",
-#                 "amount": 1500.00,
-#                 "employee_name": "Jane",
-#                 "employee_surname": "Doe",
-#                 "position_id": 1,
-#                 "position_description": "Manager"
-#             }
-#         }
-
 class PayrollOutDTO(BaseModel):
     id: int
     employee_id: int
@@ -86,3 +61,73 @@ class PayrollOutDTO(BaseModel):
                 ]
             }
         }
+
+class PayrollBackupFilterDTO(BaseModel):
+    start_date: Optional[date] = Field(None,description="Start date for payroll period (YYYY-MM-DD)")
+    end_date: Optional[date] = Field(None, description="End date for payroll period (YYYY-MM-DD)")
+    employee_id: Optional[int] = Field(None, description="Filter by employee ID")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "employee_id": 123,
+                "start_date": "2024-01-01",
+                "end_date": "2024-12-31",
+            }
+        }
+        
+        
+class PayrollReporteFilterDTO(BaseModel):
+    start_date: Optional[date] = Field(None,description="Start date for payroll period (YYYY-MM-DD)")
+    end_date: Optional[date] = Field(None, description="End date for payroll period (YYYY-MM-DD)")
+    employee_id: Optional[int] = Field(None, description="Filter by employee ID")
+    position_id: Optional[int] = Field(None, description="Filter by position ID")  # Asegúrate de que esto está presente
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "employee_id": 123,
+                "start_date": "2024-01-01",
+                "end_date": "2024-12-31",
+                "position_id": 5,
+            }
+        }
+        
+
+class PayrollDeleteFilterDTO(BaseModel):
+    start_date: date = Field(..., description="Start date for deletion (YYYY-MM-DD)")
+    end_date: date = Field(..., description="End date for deletion (YYYY-MM-DD)")
+    employee_id: Optional[int] = Field(None, description="Filter by employee ID")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "start_date": "2024-01-01",
+                "end_date": "2024-12-31",
+                "employee_id": 123
+            }
+        }
+                
+
+class PayrollUploadDTO(BaseModel):
+    overwrite_existing: bool = Field(
+        default=False,
+        description="Overwrite existing payroll records if they exist"
+    )
+    
+    
+    
+# class PayrollBackupFilterDTO(BaseModel):
+#     start_date: Optional[date] = Field(None,description="Start date for payroll period (YYYY-MM-DD)")
+#     end_date: Optional[date] = Field(None, description="End date for payroll period (YYYY-MM-DD)")
+#     employee_id: Optional[int] = Field(None, description="Filter by employee ID")
+
+#     class Config:
+#         json_schema_extra = {
+#             "example": {
+#                 "start_date": "2024-10-10",
+#                 "end_date": "2025-10-10",
+#                 "employee_id": 12
+#             }
+#         }
+        
