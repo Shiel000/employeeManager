@@ -6,6 +6,7 @@ from app.routes import group_routes
 from fastapi_pagination  import add_pagination
 from fastapi_pagination.utils import disable_installed_extensions_check
 from app.routes import payroll_routes
+from app.seed import populate_dummy_data
 
 app = FastAPI()
 
@@ -24,6 +25,7 @@ disable_installed_extensions_check()
 @app.on_event("startup")
 def create_tables():
     # Base.metadata.drop_all(bind=engine)
+    # populate_dummy_data()
     Base.metadata.create_all(bind=engine)
 
 @app.on_event("shutdown")
