@@ -4,18 +4,28 @@ from datetime import date
 
 
 
+# class PayrollCreateDTO(BaseModel):
+#     employee_id: Optional[Annotated[int, Field(gt=0, description="The ID of the employee, not required")]]
+#     period: Annotated[str, Field(pattern=r"^\d{4}-\d{2}$", description="The payroll period in format YYYY-MM")]
+
+#     class Config:
+#         json_schema_extra = {
+#             "example": {
+#                 "employee_id": 1,
+#                 "period": "2024-12"
+#             }
+#         }
+        
 class PayrollCreateDTO(BaseModel):
-    employee_id: Annotated[int, Field(gt=0, description="The ID of the employee")]
+    employee_id: Optional[int] = Field(None, description="The ID of the employee (optional for batch processing)")
     period: Annotated[str, Field(pattern=r"^\d{4}-\d{2}$", description="The payroll period in format YYYY-MM")]
 
     class Config:
         json_schema_extra = {
             "example": {
-                "employee_id": 1,
                 "period": "2024-12"
             }
         }
-        
         
 class PayrollFilterDTO(BaseModel):
     employee_id: Optional[int] = Field(None, description="Filter by employee ID")

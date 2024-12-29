@@ -63,19 +63,61 @@ class PayrollService:
     
     
     def create_payroll(self, payroll_data: PayrollCreateDTO):
-
-        employee = self._validate_employee_exists(payroll_data.employee_id)
         
-        total_salary = self._calculate_total_salary(employee_id=payroll_data.employee_id)
-        seniority_bonus = self._calculate_seniority_bonus(employee, total_salary)
-        total_amount = self._calculate_total_amount(total_salary, seniority_bonus)
+        if payroll_data.employee_id:
 
-        payroll = self._create_or_update_payroll(
-            employee_id=payroll_data.employee_id, period=payroll_data.period, total_amount=total_amount
-        )
+            employee = self._validate_employee_exists(payroll_data.employee_id)
+            
+            total_salary = self._calculate_total_salary(employee_id=payroll_data.employee_id)
+            seniority_bonus = self._calculate_seniority_bonus(employee, total_salary)
+            total_amount = self._calculate_total_amount(total_salary, seniority_bonus)
+            print('\n',total_amount)
 
-        self.db.commit()
-        return self._build_payroll_response(payroll)
+            payroll = self._create_or_update_payroll(
+                employee_id=payroll_data.employee_id, period=payroll_data.period, total_amount=total_amount
+            )
+
+            self.db.commit()
+            return self._build_payroll_response(payroll)
+        else:
+            # Proceso para todos los empleados
+            employees = self.employee_repository.get_all()  # Suponiendo que tienes este método
+            if not employees:
+                raise ValueError("No active employees found.")
+            
+            payrolls = []
+            for employee in employees:
+                total_salary = self._calculate_total_salary(employee_id=employee.id)
+                seniority_bonus = self._calculate_seniority_bonus(employee, total_salary)
+                total_amount = self._calculate_total_amount(total_salary, seniority_bonus)
+
+                payroll = self._create_or_update_payroll(
+                    employee_id=employee.id, period=payroll_data.period, total_amount=total_amount
+                )
+                payrolls.append(payroll)
+
+            self.db.commit()
+            return {
+                "status": "success",
+                "processed_count": len(payrolls),
+                "details": [self._build_payroll_response(payroll) for payroll in payrolls]
+            }
+    
+    
+    # def create_payroll(self, payroll_data: PayrollCreateDTO):
+
+    #     employee = self._validate_employee_exists(payroll_data.employee_id)
+        
+    #     total_salary = self._calculate_total_salary(employee_id=payroll_data.employee_id)
+    #     seniority_bonus = self._calculate_seniority_bonus(employee, total_salary)
+    #     total_amount = self._calculate_total_amount(total_salary, seniority_bonus)
+
+    #     payroll = self._create_or_update_payroll(
+    #         employee_id=payroll_data.employee_id, period=payroll_data.period, total_amount=total_amount
+    #     )
+
+    #     self.db.commit()
+    #     return self._build_payroll_response(payroll)
     
     
     

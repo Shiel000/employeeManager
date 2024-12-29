@@ -8,6 +8,14 @@ router = APIRouter()
 from fastapi.responses import StreamingResponse
 from fastapi import UploadFile, Query
 
+# @router.post("/")
+# def create_payroll(payroll_data: PayrollCreateDTO, db: Session = Depends(get_db)):
+#     controller = PayrollController(db)
+#     try:
+#         return controller.create_payroll(payroll_data)
+#     except ValueError as e:
+#         raise HTTPException(status_code=400, detail=str(e))
+
 @router.post("/")
 def create_payroll(payroll_data: PayrollCreateDTO, db: Session = Depends(get_db)):
     controller = PayrollController(db)
@@ -64,3 +72,4 @@ def upload_payroll_csv(
 ):
     controller = PayrollController(db)
     return controller.upload_payroll_csv(file, overwrite_existing)
+
