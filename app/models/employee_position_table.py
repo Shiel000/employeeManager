@@ -10,5 +10,5 @@ class EmployeePosition(Base):
     end_date = Column(Date, nullable=True)  # NULL si el cargo está activo
 
     # Relación inversa opcional
-    employee = relationship("EmployeeModel", back_populates="employee_positions")
-    position = relationship("PositionModel", back_populates="employee_positions")
+    employee = relationship("EmployeeModel", back_populates="employee_positions",lazy="selectin")
+    position = relationship("PositionModel", back_populates="employee_positions",lazy="selectin")

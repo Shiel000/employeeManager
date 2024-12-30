@@ -40,3 +40,12 @@ class PositionOut(BaseModel):
 
     class Config:
         from_attributes = True
+        
+        
+class PositionOutWithDetailDTO(PositionOut):
+    start_date: Optional[date]
+    end_date: Optional[date]
+    salary: Optional[float]
+
+    class Config:
+        from_attributes = True

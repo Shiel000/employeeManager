@@ -23,20 +23,6 @@ class EmployeeCreateDTO(BaseModel):
             }
         }
     
-    # @property
-    # def full_name(self) -> str:
-    #     """Combina nombre y apellido."""
-    #     return f"{self.name} {self.surname}"
-
-    # @property
-    # def seniority(self) -> int:
-    #     """Calcula la antigüedad del empleado en años."""
-    #     today = date.today()
-    #     return today.year - self.entry_date.year - (
-    #         (today.month, today.day) < (self.entry_date.month, self.entry_date.day)
-    #     )
-    
-
 class EmployeeUpdateDTO(BaseModel):
     name: Optional[str] = None
     surname: Optional[str] = None
@@ -71,7 +57,3 @@ class EmployeeOut(BaseModel):
 
     class Config:
         from_attributes = True
-        # json_encoders = {
-        #     # Excluir campos None automáticamente
-        #     Optional: lambda v: v if v is not None else None
-        # }

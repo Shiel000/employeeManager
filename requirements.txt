@@ -15,3 +15,4 @@ numpy==1.26.4
 openpyxl==3.1.0 
 fastapi-pagination==0.12.34
 Faker==33.1.0
+asyncpg>=0.27.0
