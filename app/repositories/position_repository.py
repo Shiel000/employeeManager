@@ -7,7 +7,7 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload, selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
-
+from app.dtos.position_dto import PositionFilterDTO
 
 
 class PositionRepository:
@@ -30,8 +30,45 @@ class PositionRepository:
     async def create(self, position: PositionModel) -> None:
         self.db.add(position)
         
-    async def get_all(self) -> List[PositionModel]:
-        query = select(PositionModel)
+    async def get_by_id(self, position_id: int) -> PositionModel:
+        query = select(PositionModel).where(PositionModel.id == position_id)
+        result = await self.db.execute(query)
+        return result.scalar_one_or_none()
+    
+    async def delete(self, position: PositionModel) -> None:
+        await self.db.delete(position)
+            
+    # async def get_all(self) -> List[PositionModel]:
+    #     query = select(PositionModel)
+    #     result = await self.db.execute(query)
+    #     return result.scalars().all()
+    
+    # async def get_all(self, filters: PositionFilterDTO) -> List[PositionModel]:
+    #     query = select(PositionModel).join(PositionDetailModel)
+
+    #     # Aplicar filtros basados en el DTO
+    #     if filters.start_date:
+    #         query = query.where(PositionDetailModel.start_date >= filters.start_date)
+    #     if filters.salary_threshold is not None:
+    #         query = query.where(PositionDetailModel.salary >= filters.salary_threshold)
+    #     if filters.active is not None:
+    #         query = query.where(PositionModel.active == filters.active)
+
+    #     result = await self.db.execute(query)
+    #     return result.scalars().all()
+    async def get_all(self, filters: PositionFilterDTO) -> List[PositionModel]:
+        query = select(PositionModel).join(PositionDetailModel)
+
+        # Aplicar filtros basados en el DTO
+        if filters.start_date:
+            query = query.where(PositionDetailModel.start_date >= filters.start_date)
+        if filters.salary_min is not None:
+            query = query.where(PositionDetailModel.salary >= filters.salary_min)
+        if filters.salary_max is not None:
+            query = query.where(PositionDetailModel.salary <= filters.salary_max)
+        if filters.active is not None:
+            query = query.where(PositionModel.active == filters.active)
+
         result = await self.db.execute(query)
         return result.scalars().all()
     

@@ -33,6 +33,10 @@ class EmployeePositionRepository:
     async def delete(self, employee_position: EmployeePosition):
         await self.db.delete(employee_position)
     
+    async def get_related_employees(self, position_id: int) -> List[EmployeePosition]:
+        query = select(EmployeePosition).where(EmployeePosition.position_id == position_id)
+        result = await self.db.execute(query)
+        return result.scalars().all()
     
     
     

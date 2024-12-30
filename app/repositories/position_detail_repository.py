@@ -2,7 +2,7 @@ from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.position_detail_model import PositionDetailModel
 from typing import Optional
-
+from sqlalchemy import delete
 
 class PositionDetailRepository:
     def __init__(self, db: AsyncSession):
@@ -15,7 +15,18 @@ class PositionDetailRepository:
             .order_by(PositionDetailModel.start_date.desc())
         )
         result = await self.db.execute(query)
-        return result.scalar_one_or_none()
+        latest_detail = result.scalars().first() 
+        return latest_detail
+    
+    # async def get_latest_by_position(self, position_id: int) -> PositionDetailModel:
+    #     query = (
+    #         select(PositionDetailModel)
+    #         .where(PositionDetailModel.position_id == position_id)
+    #         .order_by(PositionDetailModel.start_date.desc())  # Ordenar por fecha de inicio descendente
+    #         .limit(1)  # Limitar a un solo resultado
+    #     )
+    #     result = await self.db.execute(query)
+    #     return result.scalar_one_or_none()
 
     async def create(self, detail: PositionDetailModel) -> None:
         self.db.add(detail)
@@ -34,6 +45,10 @@ class PositionDetailRepository:
         )
         result = await self.db.execute(query)
         return result.scalar_one_or_none()
+    
+    async def delete_by_position_id(self, position_id: int) -> None:
+        query = delete(PositionDetailModel).where(PositionDetailModel.position_id == position_id)
+        await self.db.execute(query)
 
 # class PositionDetailRepository:
 #     def __init__(self, db: Session):

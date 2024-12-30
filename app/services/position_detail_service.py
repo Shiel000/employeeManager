@@ -7,7 +7,7 @@ from app.models.position_model import PositionModel
 from datetime import date
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
-
+from sqlalchemy.future import select
 
 class PositionDetailService:
     def __init__(self, db: AsyncSession):
@@ -42,10 +42,38 @@ class PositionDetailService:
 
     async def get_active_detail(self, position_id: int) -> Optional[PositionDetailModel]:
         return await self.detail_repository.get_active_by_position(position_id)
+    
+    
+    async def update_active_detail(self, position: PositionModel, new_salary: float) -> PositionDetailModel:
+        # Obtener el detalle activo
+        latest_detail = await self.detail_repository.get_latest_by_position(position.id)
+        
+        if not latest_detail:
+            raise ValueError("No active detail found for this position")
+
+        # Finalizar el detalle actual
+        latest_detail.end_date = date.today()
+        await self.detail_repository.update(latest_detail)
+
+        # Crear un nuevo detalle
+        new_detail = PositionDetailModel(
+            salary=new_salary,
+            start_date=date.today(),
+            end_date=None,
+            position=position
+        )
+        await self.detail_repository.create(new_detail)
+        return new_detail
 
 
-
-
+    async def delete(self, position: PositionModel) -> None:
+        await self.db.delete(position)
+        
+        
+    async def get_by_id(self, position_id: int) -> Optional[PositionModel]:
+        query = select(PositionModel).where(PositionModel.id == position_id)
+        result = await self.db.execute(query)
+        return result.scalar_one_or_none()
 
 
 

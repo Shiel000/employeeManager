@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
-from app.routes import employee_routes, position_routes, payroll_routes, group_routes
+from app.routes import employee_routes, position_routes, payroll_routes
 from app.models.base import Base, engine
 from fastapi_pagination import add_pagination
 from fastapi_pagination.utils import disable_installed_extensions_check
@@ -19,7 +19,7 @@ app = FastAPI()
 app.include_router(employee_routes.router, prefix="/api/employees", tags=["Employees"])
 app.include_router(position_routes.router, prefix="/api/positions", tags=["Positions"])
 # app.include_router(payroll_routes.router, prefix="/api/payrolls", tags=["Payrolls"])
-# app.include_router(group_routes.router, prefix="/api/groups", tags=["Groups"])
+
 
 add_pagination(app)
 disable_installed_extensions_check()

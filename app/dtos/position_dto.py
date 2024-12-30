@@ -1,6 +1,6 @@
 from datetime import date
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel,Field
 from app.dtos.position_detail_dto import PositionDetailCreateDTO
 
 class PositionCreateDTO(BaseModel):
@@ -22,21 +22,13 @@ class PositionCreateDTO(BaseModel):
 
 # # DTO para actualizar una posición (solo descripción)
 class PositionUpdateDTO(BaseModel):
-    id: int
-    salary : float
-    class Config:
-        from_attributes = True
-        json_schema_extra = {
-            "example": {
-                "id": "1",
-                "salary" : 50000
-            }
-        }
+    salary: float = Field(..., description="New salary for the position")
         
 class PositionOut(BaseModel):
     id: int
     description: str
     active: bool
+    salary: Optional[float] = None 
 
     class Config:
         from_attributes = True
@@ -49,3 +41,13 @@ class PositionOutWithDetailDTO(PositionOut):
 
     class Config:
         from_attributes = True
+
+class PositionFilterDTO(BaseModel):
+    start_date: Optional[date] = Field(None, description="Filter positions starting from this date")
+    salary_min: Optional[float] = Field(None, description="Filter positions with a salary above this value")
+    salary_max: Optional[float] = Field(None, description="Filter positions with a salary below this value")
+    active: Optional[bool] = Field(None, description="Filter positions by active status")
+
+    # start_date: Optional[date] = Field(None, description="Filter positions starting from this date")
+    # salary_threshold: Optional[float] = Field(None, description="Filter positions with a salary above this threshold")
+    # active: Optional[bool] = Field(None, description="Filter positions by active status")
