@@ -5,7 +5,7 @@ from pydantic import BaseModel
 class PositionDetailCreateDTO(BaseModel):
     salary: float
     start_date: date
-    end_date: Optional[date] = None  # Esto hace que `end_date` sea opcional
+    end_date: Optional[date] = None
 
     class Config:
         from_attributes = True

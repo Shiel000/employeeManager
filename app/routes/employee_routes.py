@@ -7,12 +7,15 @@ from app.models.base import get_db
 from typing import Optional
 from fastapi import Query
 
+from app.utils.decorators import measure_time
 
 
 
 router = APIRouter()
 
+
 @router.get("/", response_model=Page[EmployeeOutDRO])
+@measure_time
 async def get_employees(
     db: AsyncSession = Depends(get_db),
     params: Params = Depends(),
@@ -25,6 +28,7 @@ async def get_employees(
 
 
 @router.post("/")
+@measure_time
 async def create_employee(employee: EmployeeCreateDTO, db: AsyncSession = Depends(get_db)):
     controller = EmployeeController(db)
     try:
@@ -32,8 +36,9 @@ async def create_employee(employee: EmployeeCreateDTO, db: AsyncSession = Depend
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     
-    
+       
 @router.get("/{employee_id}")
+@measure_time
 async def get_employee(employee_id: int, db: AsyncSession = Depends(get_db)):
     controller = EmployeeController(db)
     try:
@@ -43,6 +48,7 @@ async def get_employee(employee_id: int, db: AsyncSession = Depends(get_db)):
 
 
 @router.put("/{employee_id}")
+@measure_time
 async def update_employee(employee_id: int, update_data: EmployeeUpdateDTO, db: AsyncSession = Depends(get_db)):
     controller = EmployeeController(db)
     try:
@@ -52,6 +58,7 @@ async def update_employee(employee_id: int, update_data: EmployeeUpdateDTO, db: 
 
 
 @router.delete("/{employee_id}")
+@measure_time
 async def delete_employee(employee_id: int, db: AsyncSession = Depends(get_db)):
     controller = EmployeeController(db)
     try:
@@ -62,6 +69,7 @@ async def delete_employee(employee_id: int, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/{employee_id}/positions")
+@measure_time
 async def add_positions(employee_id: int, positions: EmployeeAddDeletePositionsDTO, db: AsyncSession = Depends(get_db)):
     controller = EmployeeController(db)
     try:
@@ -72,6 +80,7 @@ async def add_positions(employee_id: int, positions: EmployeeAddDeletePositionsD
 
 
 @router.delete("/{employee_id}/positions")
+@measure_time
 async def remove_positions(employee_id: int, positions: EmployeeAddDeletePositionsDTO, db: AsyncSession = Depends(get_db)):
     controller = EmployeeController(db)
     try:
@@ -82,6 +91,7 @@ async def remove_positions(employee_id: int, positions: EmployeeAddDeletePositio
 
 
 @router.get("/positions/history")
+@measure_time
 async def get_position_history(
     employee_id: Optional[int] = Query(None),
     employee_number: Optional[int] = Query(None),

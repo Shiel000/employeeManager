@@ -197,31 +197,7 @@ class PayrollService:
         return StreamingResponse(output, media_type="text/csv", headers={
             "Content-Disposition": "attachment; filename=payroll_backup.csv"
         })
-        
-    # async def generate_report(self, filters: PayrollReporteFilterDTO):
-        # query = self.payroll_repository.get_reports_query(filters)
-        # result = await self.db.execute(query)
-        # data = result.fetchall()
-
-    #     total_general = sum(row.total_liquidated for row in data)
-    #     output = StringIO()
-    #     writer = csv.writer(output)
-    #     writer.writerow(["Position", "Total Liquidated", "Average per Employee"])
-
-    #     for row in data:
-    #         writer.writerow([
-    #             row.position_description,
-    #             round(float(row.total_liquidated), 2),
-    #             round(float(row.average_per_employee), 2)
-    #         ])
-
-    #     writer.writerow(["Total", round(total_general, 2), ""])
-
-    #     output.seek(0)
-    #     return StreamingResponse(output, media_type="text/csv", headers={
-    #         "Content-Disposition": "attachment; filename=payroll_report.csv"
-    #     })
-    
+   
     async def generate_report(self, filters: PayrollReporteFilterDTO):
         query = self.payroll_repository.get_reports_query(filters)
         data = await self.db.execute(query)
@@ -244,7 +220,7 @@ class PayrollService:
                 row.position_description,
                 float(row.total_liquidated),
                 float(row.average_per_employee),
-                row.total_employees,  # Asegúrate de calcular este campo en la query
+                row.total_employees,
                 round(percentage_of_total, 2),
             ])
 

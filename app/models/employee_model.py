@@ -1,5 +1,5 @@
-from sqlalchemy import Column, Integer, String, Date , Table,ForeignKey
-from sqlalchemy.orm import validates, relationship
+from sqlalchemy import Column, Integer, String, Date 
+from sqlalchemy.orm import relationship
 from app.models.base import Base
 from app.models.employee_position_table import EmployeePosition
 
