@@ -27,7 +27,6 @@ class PositionCreateDTO(BaseModel):
         }
 
 
-# # DTO para actualizar una posición (solo descripción)
 class PositionUpdateDTO(BaseModel):
     salary: float = Field(..., description="New salary for the position")
         

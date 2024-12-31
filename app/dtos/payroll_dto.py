@@ -38,7 +38,7 @@ class PayrollOutDTO(BaseModel):
     amount: float
     employee_name: str
     employee_surname: str
-    positions: List[PositionOutDTODTO]  # Lista de posiciones, cada una con ID y descripción
+    positions: List[PositionOutDTODTO]
 
     class Config:
         from_attributes = True
@@ -62,7 +62,7 @@ class PayrollReporteFilterDTO(BaseModel):
     start_date: Optional[date] = Field(None,description="Start date for payroll period (YYYY-MM-DD)")
     end_date: Optional[date] = Field(None, description="End date for payroll period (YYYY-MM-DD)")
     employee_id: Optional[int] = Field(None, description="Filter by employee ID")
-    position_id: Optional[int] = Field(None, description="Filter by position ID")  # Asegúrate de que esto está presente
+    position_id: Optional[int] = Field(None, description="Filter by position ID")
 
     class Config:
         json_schema_extra = {

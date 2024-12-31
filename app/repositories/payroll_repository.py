@@ -86,29 +86,7 @@ class PayrollRepository:
             query = query.where(PayrollModel.employee_id == filters.employee_id)
 
         return query
-    
-    # def get_reports_query(self, filters: PayrollReporteFilterDTO):
-    #     query = (
-    #         select(
-    #             PositionModel.description.label("position_description"),
-    #             func.sum(PayrollModel.amount).label("total_liquidated"),
-    #             func.avg(PayrollModel.amount).label("average_per_employee")
-    #         )
-    #         .join(EmployeePosition, EmployeePosition.position_id == PositionModel.id, isouter=True)
-    #         .join(PayrollModel, EmployeePosition.employee_id == PayrollModel.employee_id, isouter=True)
-    #         .group_by(PositionModel.description)
-    #     )
-
-        
-    #     if filters.start_date:
-    #         query = query.where(PayrollModel.period >= filters.start_date.strftime("%Y-%m"))
-    #     if filters.end_date:
-    #         query = query.where(PayrollModel.period <= filters.end_date.strftime("%Y-%m"))
-    #     if filters.position_id:
-    #         query = query.where(PositionModel.id == filters.position_id)
-
-    #     return query
-    
+ 
     def get_reports_query(self, filters: PayrollReporteFilterDTO) -> Query:
         query = (
             select(

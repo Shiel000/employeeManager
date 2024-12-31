@@ -1,15 +1,14 @@
 from fastapi import FastAPI
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
-from app.routes import employee_routes, position_routes, payroll_routes
+from app.routes import employee_routes, position_routes, payroll_routes,health_routes, version_routes,populate_routes
 from app.models.base import Base, engine
 from fastapi_pagination import add_pagination
 from fastapi_pagination.utils import disable_installed_extensions_check
 import os
-from app.seed import populate_dummy_data
+from app.utils.seed import populate_dummy_data
 
 
-# Asynchronous Engine and Session
 # engine = create_async_engine(os.getenv("DATABASE_URL"), echo=False)
 async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
@@ -19,6 +18,9 @@ app = FastAPI()
 app.include_router(employee_routes.router, prefix="/api/employees", tags=["Employees"])
 app.include_router(position_routes.router, prefix="/api/positions", tags=["Positions"])
 app.include_router(payroll_routes.router, prefix="/api/payrolls", tags=["Payrolls"])
+app.include_router(populate_routes.router, prefix="/api/populate", tags=["Populate"])
+app.include_router(health_routes.router, tags=["Health"])
+app.include_router(version_routes.router, tags=["Version"])
 
 
 add_pagination(app)
