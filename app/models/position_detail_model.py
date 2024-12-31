@@ -9,5 +9,5 @@ class PositionDetailModel(Base):
     end_date = Column(Date, nullable=True) 
     salary = Column(Numeric(scale=2, precision=15, asdecimal=False, decimal_return_scale=None))
     position_id = Column(Integer, ForeignKey("position.id"), nullable=True)
-    position = relationship("PositionModel")
+    position = relationship("PositionModel",lazy="selectin")
     

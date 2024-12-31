@@ -11,7 +11,8 @@ services:
     depends_on:
       - db
     environment:
-      - DATABASE_URL=postgresql://postgres:password@db:5432/employeedb
+      - DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/employeedb
+      # - DATABASE_URL=postgresql://postgres:password@db:5432/employeedb
       - MINIMUM_WAGE=300000.00
 
   db:

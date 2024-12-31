@@ -10,5 +10,5 @@ class PayrollModel(Base):
     amount = Column(Numeric(10, 2), nullable=False)  # Column(Numeric(scale=2, precision=15, asdecimal=False, decimal_return_scale=None))
     
     employee_id = Column(Integer, ForeignKey("employee.id"), nullable=False)  # FK to employees table
-    employee = relationship("EmployeeModel")
+    employee = relationship("EmployeeModel",lazy="selectin")
     

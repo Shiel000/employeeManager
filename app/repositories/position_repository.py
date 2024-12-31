@@ -1,47 +1,52 @@
-from sqlalchemy.orm import Session
-from app.models.position_model import PositionModel
 from app.models.position_detail_model import PositionDetailModel
-from app.models.employee_position_table import EmployeePosition
+from app.dtos.position_dto import PositionFilterDTO
+from app.models.position_model import PositionModel
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from typing import Optional
 from typing import  List
 
+
+
 class PositionRepository:
-    def __init__(self, db: Session):
+    
+    def __init__(self, db: AsyncSession):
         self.db = db
 
-    def get_all(self):
-        return self.db.query(PositionModel).all()
-
-    def get_by_id(self, position_id: int):
-        return self.db.query(PositionModel).filter(PositionModel.id == position_id).first()
-
-    def create(self, position: PositionModel):
-        # Makes and add but not commit
-        self.db.add(position)
-        return position
-
-    def delete(self, position: PositionModel):
-        self.db.delete(position)
-
-    def has_details(self, position_id: int) -> bool:
-        return (
-            self.db.query(PositionDetailModel)
-            .filter(PositionDetailModel.position_id == position_id)
-            .count() > 0
-        )
-   
-    def get_by_name(self, name: str):
-        return self.db.query(PositionModel).filter(PositionModel.description == name).first()
-    
-    def get_by_ids(self, position_ids: List[int], is_active: bool = False):
-        query = self.db.query(PositionModel).filter(PositionModel.id.in_(position_ids))
+    async def get_by_ids(self, position_ids: List[int], is_active: bool = False) -> List[PositionModel]:
+        query = select(PositionModel).where(PositionModel.id.in_(position_ids))
         if is_active:
-            query = query.filter(PositionModel.active == True)
-        return query.all()
+            query = query.where(PositionModel.active == True)
+        result = await self.db.execute(query)
+        return result.scalars().all()
     
-    def delete(self, position: PositionModel):
-        self.db.delete(position)
+    async def get_by_name(self, name: str) -> Optional[PositionModel]:
+        query = select(PositionModel).where(PositionModel.description == name)
+        result = await self.db.execute(query)
+        return result.scalar_one_or_none()
 
-    def get_related_employees(self, position_id: int):
-        return (self.db.query(EmployeePosition).filter(EmployeePosition.position_id == position_id).all())
-
+    async def create(self, position: PositionModel) -> None:
+        self.db.add(position)
+        
+    async def get_by_id(self, position_id: int) -> PositionModel:
+        query = select(PositionModel).where(PositionModel.id == position_id)
+        result = await self.db.execute(query)
+        return result.scalar_one_or_none()
     
+    async def delete(self, position: PositionModel) -> None:
+        await self.db.delete(position)
+ 
+    async def get_all(self, filters: PositionFilterDTO) -> List[PositionModel]:
+        query = select(PositionModel).join(PositionDetailModel)
+
+        if filters.start_date:
+            query = query.where(PositionDetailModel.start_date >= filters.start_date)
+        if filters.salary_min is not None:
+            query = query.where(PositionDetailModel.salary >= filters.salary_min)
+        if filters.salary_max is not None:
+            query = query.where(PositionDetailModel.salary <= filters.salary_max)
+        if filters.active is not None:
+            query = query.where(PositionModel.active == filters.active)
+
+        result = await self.db.execute(query)
+        return result.scalars().all()
