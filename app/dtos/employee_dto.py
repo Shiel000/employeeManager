@@ -2,7 +2,7 @@ from datetime import date
 from pydantic import BaseModel,validator
 from typing import Optional, List
 from fastapi import Query
-from app.dtos.position_dto import PositionOut
+from app.dtos.position_dto import PositionOutDTO
 
 class EmployeeCreateDTO(BaseModel):
     name: str
@@ -45,7 +45,7 @@ class EmployeeFilter(BaseModel):
 
 
 
-class EmployeeOut(BaseModel):
+class EmployeeOutDRO(BaseModel):
     id: int
     employee_number: int
     name: str

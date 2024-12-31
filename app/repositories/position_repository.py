@@ -1,13 +1,11 @@
-from sqlalchemy.orm import Session
-from app.models.position_model import PositionModel
 from app.models.position_detail_model import PositionDetailModel
-from app.models.employee_position_table import EmployeePosition
-from typing import  List
-from sqlalchemy.future import select
-from sqlalchemy.orm import joinedload, selectinload
-from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Optional
 from app.dtos.position_dto import PositionFilterDTO
+from app.models.position_model import PositionModel
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from typing import Optional
+from typing import  List
+
 
 
 class PositionRepository:
@@ -37,29 +35,10 @@ class PositionRepository:
     
     async def delete(self, position: PositionModel) -> None:
         await self.db.delete(position)
-            
-    # async def get_all(self) -> List[PositionModel]:
-    #     query = select(PositionModel)
-    #     result = await self.db.execute(query)
-    #     return result.scalars().all()
-    
-    # async def get_all(self, filters: PositionFilterDTO) -> List[PositionModel]:
-    #     query = select(PositionModel).join(PositionDetailModel)
-
-    #     # Aplicar filtros basados en el DTO
-    #     if filters.start_date:
-    #         query = query.where(PositionDetailModel.start_date >= filters.start_date)
-    #     if filters.salary_threshold is not None:
-    #         query = query.where(PositionDetailModel.salary >= filters.salary_threshold)
-    #     if filters.active is not None:
-    #         query = query.where(PositionModel.active == filters.active)
-
-    #     result = await self.db.execute(query)
-    #     return result.scalars().all()
+ 
     async def get_all(self, filters: PositionFilterDTO) -> List[PositionModel]:
         query = select(PositionModel).join(PositionDetailModel)
 
-        # Aplicar filtros basados en el DTO
         if filters.start_date:
             query = query.where(PositionDetailModel.start_date >= filters.start_date)
         if filters.salary_min is not None:
@@ -71,60 +50,3 @@ class PositionRepository:
 
         result = await self.db.execute(query)
         return result.scalars().all()
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    # def __init__(self, db: Session):
-    #     self.db = db
-
-    # def get_all(self):
-    #     return self.db.query(PositionModel).all()
-
-    # def get_by_id(self, position_id: int):
-    #     return self.db.query(PositionModel).filter(PositionModel.id == position_id).first()
-
-    # def create(self, position: PositionModel):
-    #     # Makes and add but not commit
-    #     self.db.add(position)
-    #     return position
-
-    # def delete(self, position: PositionModel):
-    #     self.db.delete(position)
-
-    # def has_details(self, position_id: int) -> bool:
-    #     return (
-    #         self.db.query(PositionDetailModel)
-    #         .filter(PositionDetailModel.position_id == position_id)
-    #         .count() > 0
-    #     )
-   
-    # def get_by_name(self, name: str):
-    #     return self.db.query(PositionModel).filter(PositionModel.description == name).first()
-    
-    # def get_by_ids(self, position_ids: List[int], is_active: bool = False):
-    #     query = self.db.query(PositionModel).filter(PositionModel.id.in_(position_ids))
-    #     if is_active:
-    #         query = query.filter(PositionModel.active == True)
-    #     return query.all()
-    
-    # def delete(self, position: PositionModel):
-    #     self.db.delete(position)
-
-    # def get_related_employees(self, position_id: int):
-    #     return (self.db.query(EmployeePosition).filter(EmployeePosition.position_id == position_id).all())
-
-    

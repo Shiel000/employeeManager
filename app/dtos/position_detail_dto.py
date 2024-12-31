@@ -17,15 +17,3 @@ class PositionDetailCreateDTO(BaseModel):
             }
         }
 
-
-
-# DTO para actualizar un detalle de posición
-# class PositionDetailUpdateDTO(BaseModel):
-#     salary: float
-
-#     class Config:
-#         json_schema_extra = {
-#             "example": {
-#                 "salary": 25000.00,
-#             }
-#         }

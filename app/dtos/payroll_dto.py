@@ -1,20 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import Annotated,List,Optional
 from datetime import date
-
-
-
-# class PayrollCreateDTO(BaseModel):
-#     employee_id: Optional[Annotated[int, Field(gt=0, description="The ID of the employee, not required")]]
-#     period: Annotated[str, Field(pattern=r"^\d{4}-\d{2}$", description="The payroll period in format YYYY-MM")]
-
-#     class Config:
-#         json_schema_extra = {
-#             "example": {
-#                 "employee_id": 1,
-#                 "period": "2024-12"
-#             }
-#         }
+from app.dtos.position_dto import PositionOutDTODTO
         
 class PayrollCreateDTO(BaseModel):
     employee_id: Optional[int] = Field(None, description="The ID of the employee (optional for batch processing)")
@@ -51,26 +38,10 @@ class PayrollOutDTO(BaseModel):
     amount: float
     employee_name: str
     employee_surname: str
-    positions: List[dict]  # Lista de posiciones, cada una con ID y descripción
+    positions: List[PositionOutDTODTO]  # Lista de posiciones, cada una con ID y descripción
 
     class Config:
         from_attributes = True
-        json_schema_extra = {
-            "example": {
-                "id": 1,
-                "employee_id": 7,
-                "period": "2024-12",
-                "amount": 371400,
-                "employee_name": "Martin",
-                "employee_surname": "Jones",
-                "positions": [
-                    {"position_id": 1, "position_description": "Manager"},
-                    {"position_id": 2, "position_description": "Engineer"},
-                    {"position_id": 3, "position_description": "Sub director"},
-                    {"position_id": 5, "position_description": "Colaborator"}
-                ]
-            }
-        }
 
 class PayrollBackupFilterDTO(BaseModel):
     start_date: Optional[date] = Field(None,description="Start date for payroll period (YYYY-MM-DD)")
@@ -118,26 +89,3 @@ class PayrollDeleteFilterDTO(BaseModel):
             }
         }
                 
-
-class PayrollUploadDTO(BaseModel):
-    overwrite_existing: bool = Field(
-        default=False,
-        description="Overwrite existing payroll records if they exist"
-    )
-    
-    
-    
-# class PayrollBackupFilterDTO(BaseModel):
-#     start_date: Optional[date] = Field(None,description="Start date for payroll period (YYYY-MM-DD)")
-#     end_date: Optional[date] = Field(None, description="End date for payroll period (YYYY-MM-DD)")
-#     employee_id: Optional[int] = Field(None, description="Filter by employee ID")
-
-#     class Config:
-#         json_schema_extra = {
-#             "example": {
-#                 "start_date": "2024-10-10",
-#                 "end_date": "2025-10-10",
-#                 "employee_id": 12
-#             }
-#         }
-        

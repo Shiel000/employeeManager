@@ -18,7 +18,7 @@ app = FastAPI()
 # Register routes
 app.include_router(employee_routes.router, prefix="/api/employees", tags=["Employees"])
 app.include_router(position_routes.router, prefix="/api/positions", tags=["Positions"])
-# app.include_router(payroll_routes.router, prefix="/api/payrolls", tags=["Payrolls"])
+app.include_router(payroll_routes.router, prefix="/api/payrolls", tags=["Payrolls"])
 
 
 add_pagination(app)

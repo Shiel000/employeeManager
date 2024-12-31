@@ -3,6 +3,13 @@ from typing import Optional
 from pydantic import BaseModel,Field
 from app.dtos.position_detail_dto import PositionDetailCreateDTO
 
+class PositionOutDTODTO(BaseModel):
+    id: int
+    description: str
+
+    class Config:
+        from_attributes = True
+
 class PositionCreateDTO(BaseModel):
     description: str
     detail: PositionDetailCreateDTO
@@ -24,7 +31,7 @@ class PositionCreateDTO(BaseModel):
 class PositionUpdateDTO(BaseModel):
     salary: float = Field(..., description="New salary for the position")
         
-class PositionOut(BaseModel):
+class PositionOutDTO(BaseModel):
     id: int
     description: str
     active: bool
@@ -34,7 +41,7 @@ class PositionOut(BaseModel):
         from_attributes = True
         
         
-class PositionOutWithDetailDTO(PositionOut):
+class PositionOutDTOWithDetailDTO(PositionOutDTO):
     start_date: Optional[date]
     end_date: Optional[date]
     salary: Optional[float]
@@ -47,7 +54,3 @@ class PositionFilterDTO(BaseModel):
     salary_min: Optional[float] = Field(None, description="Filter positions with a salary above this value")
     salary_max: Optional[float] = Field(None, description="Filter positions with a salary below this value")
     active: Optional[bool] = Field(None, description="Filter positions by active status")
-
-    # start_date: Optional[date] = Field(None, description="Filter positions starting from this date")
-    # salary_threshold: Optional[float] = Field(None, description="Filter positions with a salary above this threshold")
-    # active: Optional[bool] = Field(None, description="Filter positions by active status")
