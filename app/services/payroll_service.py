@@ -16,6 +16,7 @@ from io import StringIO
 import pandas as pd
 import csv
 import os
+from typing import List, Optional,Dict
 
 
 
@@ -30,7 +31,7 @@ class PayrollService:
         self.MINIMUM_WAGE = float(os.getenv("MINIMUM_WAGE"))
         self.params = params
 
-    async def create_payroll(self, payroll_data: PayrollCreateDTO):
+    async def create_payroll(self, payroll_data: PayrollCreateDTO)-> Dict:
         if payroll_data.employee_id:
             employee = await self._validate_employee_exists(payroll_data.employee_id)
             total_salary = await self._calculate_total_salary(employee_id=payroll_data.employee_id)
@@ -154,12 +155,12 @@ class PayrollService:
 
         return await self._build_payroll_response(payroll, employee)
 
-    async def get_backup_data(self, filters: PayrollBackupFilterDTO):
+    async def get_backup_data(self, filters: PayrollBackupFilterDTO)-> List[Dict]:
         query = self.payroll_repository.get_backup_query(filters)
         result = await self.db.execute(query)
         return result.fetchall()
 
-    def generate_csv_backup(self, data):
+    def generate_csv_backup(self, data)-> StreamingResponse:
         grouped_data = defaultdict(lambda: {"positions": [], "position_ids": []})
         for payroll, employee_name, employee_surname, position_id, position_description in data:
             if "id" not in grouped_data[payroll.id]:
@@ -198,7 +199,7 @@ class PayrollService:
             "Content-Disposition": "attachment; filename=payroll_backup.csv"
         })
    
-    async def generate_report(self, filters: PayrollReporteFilterDTO):
+    async def generate_report(self, filters: PayrollReporteFilterDTO)-> StreamingResponse:
         query = self.payroll_repository.get_reports_query(filters)
         data = await self.db.execute(query)
         rows = data.fetchall()
@@ -231,7 +232,7 @@ class PayrollService:
             "Content-Disposition": "attachment; filename=payroll_report.csv"
         })
         
-    async def delete_payrolls(self, filters: PayrollDeleteFilterDTO):
+    async def delete_payrolls(self, filters: PayrollDeleteFilterDTO)-> Dict:
         start_date = filters.start_date.strftime("%Y-%m")
         end_date = filters.end_date.strftime("%Y-%m")
         
@@ -245,7 +246,7 @@ class PayrollService:
         return {"message": f"{rows_deleted} payroll records deleted successfully."}
 
 
-    async def upload_payroll_csv(self, file: UploadFile, overwrite_existing: bool = False):
+    async def upload_payroll_csv(self, file: UploadFile, overwrite_existing: bool = False)-> Dict:
         try:
             df = pd.read_csv(file.file)
             column_mapping = {

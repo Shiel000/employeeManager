@@ -10,7 +10,8 @@ class PayrollCreateDTO(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "period": "2024-12"
+                "period": "2024-12",
+                "employee_id" :1
             }
         }
         

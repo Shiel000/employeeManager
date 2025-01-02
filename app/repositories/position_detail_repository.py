@@ -31,7 +31,7 @@ class PositionDetailRepository:
             select(PositionDetailModel)
             .where(
                 PositionDetailModel.position_id == position_id,
-                PositionDetailModel.end_date == None  # Detalle activo
+                PositionDetailModel.end_date == None 
             )
         )
         result = await self.db.execute(query)

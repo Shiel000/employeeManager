@@ -8,7 +8,7 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import Query
 from sqlalchemy.sql import func
 from sqlalchemy import delete
-from typing import  Optional
+from typing import  Optional, List
 from sqlalchemy.sql.expression import distinct
 
 
@@ -16,7 +16,7 @@ class PayrollRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def get_by_employee(self, employee_id: int):
+    async def get_by_employee(self, employee_id: int) -> List[PayrollModel]:
         query = select(PayrollModel).where(PayrollModel.employee_id == employee_id)
         result = await self.db.execute(query)
         return result.scalars().all()
@@ -59,12 +59,12 @@ class PayrollRepository:
         return query
 
 
-    async def get_by_id(self, payroll_id: int) -> Optional[PayrollModel]:
+    async def get_by_id(self, payroll_id: int) -> Optional[PayrollModel] :
         query = select(PayrollModel).where(PayrollModel.id == payroll_id)
         result = await self.db.execute(query)
         return result.scalar_one_or_none()
 
-    def get_backup_query(self, filters: PayrollBackupFilterDTO):
+    def get_backup_query(self, filters: PayrollBackupFilterDTO)-> Query:
         query = (
             select(
                 PayrollModel,
@@ -101,7 +101,6 @@ class PayrollRepository:
             .group_by(PositionModel.id, PositionModel.description)
         )
 
-    # Aplica filtros opcionales
         if filters.start_date:
             query = query.filter(PayrollModel.period >= filters.start_date.strftime("%Y-%m"))
         if filters.end_date:
@@ -111,7 +110,7 @@ class PayrollRepository:
 
         return query
     
-    async def delete_by_filters(self, start_date: str, end_date: str, employee_id: Optional[int] = None):
+    async def delete_by_filters(self, start_date: str, end_date: str, employee_id: Optional[int] = None)-> int:
         query = (
             delete(PayrollModel)
             .where(
