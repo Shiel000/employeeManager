@@ -64,7 +64,7 @@ class PositionService:
         }
         
         
-    async def edit_position(self, position_id: int, position_data: PositionUpdateDTO):
+    async def edit_position(self, position_id: int, position_data: PositionUpdateDTO)-> PositionOutDTO:
         position = await self.position_repository.get_by_id(position_id)
         if not position or not position.active:
             raise ValueError("Position not found or inactive")

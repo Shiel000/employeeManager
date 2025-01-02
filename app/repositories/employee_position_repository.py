@@ -13,7 +13,7 @@ class EmployeePositionRepository:
         self.db.add(employee_position)
     
     
-    async def get_active_relationships(self, employee_id: int, position_ids: List[int]):
+    async def get_active_relationships(self, employee_id: int, position_ids: List[int])-> List[EmployeePosition]:
         query = (
             select(EmployeePosition)
             .where(
@@ -38,7 +38,7 @@ class EmployeePositionRepository:
         result = await self.db.execute(query)
         return result.scalars().all()
     
-    async def get_active_positions_by_employee(self, employee_id: int):
+    async def get_active_positions_by_employee(self, employee_id: int)-> List[EmployeePosition]:
         query = (
             select(EmployeePosition)
             .options(joinedload(EmployeePosition.position))

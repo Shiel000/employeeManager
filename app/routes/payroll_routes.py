@@ -21,7 +21,7 @@ async def create_payroll(
     result = await controller.create_payroll(payroll_data)
 
     if isinstance(result, PayrollOutDTO):
-        # Respuesta para un solo payroll
+        
         return {
             "status": "success",
             "processed_count": 1,
